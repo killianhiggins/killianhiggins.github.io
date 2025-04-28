@@ -1,7 +1,12 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  font-family: 'JetBrains Mono';
+    src: url('JetBrainsMono-Regular.eot');
+    src: url('JetBrainsMono-Regular.eot?#iefix') format('embedded-opentype'),
+        url('JetBrainsMono-Regular.woff2') format('woff2'),
+        url('JetBrainsMono-Regular.woff') format('woff'),
+        url('JetBrainsMono-Regular.ttf') format('truetype'),
+        url('JetBrainsMono-Regular.svg#JetBrainsMono-Regular') format('svg');
+
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
@@ -11,15 +16,11 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  place-items: center;
 }
 
 body {
@@ -27,42 +28,35 @@ body {
   display: flex;
   place-items: center;
   min-width: 320px;
-  min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
+.h1 {
+  font-size: 10rem;
   line-height: 1.1;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+.projects {
+  margin-top: 10vh;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+.sketchLeft {
+  float: left;
+  margin-right: 20px;
+}
+
+.textRight {
+  margin-left: 25vw;
+}
+
+a:link {
+  color: grey;
+  text-decoration: none;
+}
+a:visited {
+  color: grey;
+  text-decoration: none;
+}
+
+a:hover {
+  color: lightgrey;
 }
