@@ -44,8 +44,19 @@ body {
   margin-right: 20px;
 }
 
+.sketchRight {
+  float: right;
+  margin-left: 20px;
+}
+
 .textRight {
   margin-left: 25vw;
+  margin-bottom: 10em;
+}
+
+.textLeft {
+  float: left;
+  margin-right: 1vw;
 }
 
 a:link {

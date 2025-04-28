@@ -16,7 +16,12 @@ function App() {
           </div>
         </div>
         <div className="secondproj">
-          <GeoTriangle />
+          <div className="sketchRight">
+            <GeoTriangle />
+          </div>
+          <div className="textLeft">
+            <p>S-Hull Implementation.</p>
+          </div>
         </div>
       </div>
     </>

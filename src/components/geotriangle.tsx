@@ -2,6 +2,7 @@ import Sketch from 'react-p5';
 
 function GeoTriangle() {
     let firstPoint: number[];
+    let points: number[][]; 
 
     /**  
      * Returns a random integer between 0 and "max" argument.
@@ -15,7 +16,7 @@ function GeoTriangle() {
      * @returns A generated array of arrays storing a random x and y integer.
      */
     function generatePoints(width: number, height: number, num: number){
-        let points: number[][] = [];
+        points = [];
         for(let i = 0; i < num; i++){
             points.push([getRandomInt(1, width-2), getRandomInt(1, height-2)]);
         }
@@ -33,13 +34,10 @@ function GeoTriangle() {
      */
     function comparePoints(a: number[], b: number[]) {
         if(squaredDistance(firstPoint, a) < squaredDistance(firstPoint, b)){
-            console.log(a + " closer than " + b);
             return -1;
         }else if(squaredDistance(firstPoint, a) > squaredDistance(firstPoint, b)){
-            console.log(b + " closer than " + a);
             return 1;
         }
-        console.log("a and b equal distance");
         return 0;
     }
 
@@ -72,17 +70,17 @@ function GeoTriangle() {
     const setup = (p5: any, canvasParentRef: any) => {
         var canvas = p5.createCanvas(400, 200);
         canvas.parent(canvasParentRef);
-        let points = generatePoints(canvas.width, canvas.height, 10);
-        console.log(points)
+        generatePoints(canvas.width, canvas.height, 40);
         sortPoints(points);
-        console.log(points);
     }
 
     /**  
      * Called each new frame the canvas is rendered.
      */
     const draw = (p5: any) => {
-        let e:any  = p5.color(255, 255, 255);
+        p5.background(200);
+        points.forEach(item => p5.line(firstPoint[0], firstPoint[1], item[0], item[1]));
+
     }
 
     return (
