@@ -13,13 +13,29 @@ function GeoTriangle() {
 
     /**
      * Generates num number of points for canvas, given width, height, and num.
+     * Will never generate points lying on the same verticle or horizontal axis.
      * @returns A generated array of arrays storing a random x and y integer.
      */
     function generatePoints(width: number, height: number, num: number){
-        points = [];
-        for(let i = 0; i < num; i++){
-            points.push([getRandomInt(1, width-2), getRandomInt(1, height-2)]);
+        points = [[getRandomInt(1, width-2), getRandomInt(1, height-2)]];
+        while(points.length < num){
+            let x: number = getRandomInt(1, width-2);
+            let y: number = getRandomInt(1, height-2);
+            let xPoints: number[] = [];
+            let yPoints: number[] = [];
+            points.forEach(point => {
+                xPoints.push(point[0]);
+                yPoints.push(point[1]);
+            });
+            while(xPoints.includes(x)){
+                x = getRandomInt(1, width-2);
+            }
+            while(yPoints.includes(y)){
+                y = getRandomInt(1, height-2);
+            }
+            points.push([x, y]);
         }
+        console.log(points);
         return points;
     }
 
@@ -61,7 +77,68 @@ function GeoTriangle() {
         firstPoint = points.shift() as number[];
         points.sort(comparePoints);
         points.unshift(firstPoint);
-        // Seems to not order array?????
+    }
+
+    /**
+     * 
+     * @param a 
+     * @param b 
+     * @param c 
+     * @returns [centre, radiusSquared], describing the centre's x & y, and the radius
+     * squared of the circumcircle. 
+     */
+    function calculateCircumCircle(a: number[], b: number[], 
+                                   c: number[]): [number[], number] {
+        let centre: number[] = [];
+        let radiusSquared: number;
+        let abMidpoint: number[] = [Math.min(a[0], b[0])+(Math.abs(a[0]-b[0])/2), 
+                                    Math.min(a[1], b[1])+(Math.abs(a[1]-b[1])/2)];
+        console.log("MIDPOINT: " + abMidpoint);
+        let bcMidpoint: number[] = [Math.min(b[0], c[0])+(Math.abs(b[0]-c[0])/2), 
+                                    Math.min(b[1], c[1])+(Math.abs(b[1]-c[1])/2)];
+        console.log("MIDPOINT: " + bcMidpoint);
+        let abGradient: number = 0;
+        let bcGradient: number = 0;
+
+        abGradient = (b[1]-a[1])/(b[0]-a[0]);
+        bcGradient = (c[1]-b[1])/(c[0]-b[0]);
+        console.log("AB GRADIENT: " + abGradient);
+
+        let abNormal: number;
+        let bcNormal: number;
+        abNormal = -1/abGradient;
+        bcNormal = -1/bcGradient;
+
+        let abYIntersect: number = abMidpoint[1]-abNormal*abMidpoint[0];
+        let bcYIntersect: number = bcMidpoint[1]-bcNormal*bcMidpoint[0];
+
+        centre.push(Math.round((abYIntersect-bcYIntersect)/(bcGradient-abGradient)));
+        centre.push(Math.round((centre[0]*abNormal + abYIntersect)));
+
+        radiusSquared = (centre[0]-a[0])*(centre[0]-a[0]) + 
+                        (centre[1]-a[1])*(centre[1]-a[1]);
+        return [centre, Math.floor(Math.sqrt(radiusSquared))];
+    }
+
+    /**
+     * 
+     * @param points 
+     */
+    function getK(points: number[][]) {
+        let i = points.shift() as number[];
+        let j = points.shift() as number[];
+
+        let centres: number[][] = [];
+        let radSquares: number[] = [];
+        for(let idx = 0; idx < points.length; idx++){
+            console.log(idx + " " + points[idx].toString());
+            let [centre, radSqaured] = calculateCircumCircle(i, j, points[idx]);
+            centres.push(centre);
+            radSquares.push(radSqaured);
+            console.log(radSqaured + " " + centre.toString());
+        }
+        points.unshift(j);
+        points.unshift(i);
     }
 
     /**  
@@ -70,8 +147,11 @@ function GeoTriangle() {
     const setup = (p5: any, canvasParentRef: any) => {
         var canvas = p5.createCanvas(400, 200);
         canvas.parent(canvasParentRef);
-        generatePoints(canvas.width, canvas.height, 40);
+        generatePoints(canvas.width, canvas.height, 5);
         sortPoints(points);
+        //x_i and x_j are the first two points in points array.
+        getK(points);
+
     }
 
     /**  
