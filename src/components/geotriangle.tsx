@@ -3,9 +3,13 @@ import Sketch from 'react-p5';
 function GeoTriangle() {
     let firstPoint: number[];
     let points: number[][]; 
+    let k: number[];
+    let centre: number[];
+    let cRadius: number;
+    let hull: number[][] = [];
 
     /**  
-     * Returns a random integer between 0 and "max" argument.
+     * @returns A random integer between 0 and "max" argument.
      */
     function getRandomInt(min: number, max: number) {
         return Math.floor(Math.random() * (max - min) + min);
@@ -46,7 +50,7 @@ function GeoTriangle() {
      * Returns as per the Array.prototype.sort documentation specifies.
      * @param a number[] First point to be compared.
      * @param b number[] Second point to be compared
-     * @returns 1 if a is closer, -1 if b is closer, 0 if they're the same.
+     * @returns -1 if a is closer, 1 if b is closer, 0 if they're the same.
      */
     function comparePoints(a: number[], b: number[]) {
         if(squaredDistance(firstPoint, a) < squaredDistance(firstPoint, b)){
@@ -70,75 +74,101 @@ function GeoTriangle() {
     }
 
     /**
-     * Returns sorted points in order of distance from the first point.
-     * @param points 
+     * Sorts points in-place by order of distance from the first point.
+     * @param points - Points to sort.
      */
-    function sortPoints(points: number[][]) {
+    function sortPointsToFirst(points: number[][]) {
         firstPoint = points.shift() as number[];
         points.sort(comparePoints);
         points.unshift(firstPoint);
     }
 
     /**
-     * 
-     * @param a 
-     * @param b 
-     * @param c 
+     * Calculates and returns the centre and radius of the circumcircle that 
+     * inscribes points a, b, and c.
+     * @param a Point a - Array of 2 numebrs.
+     * @param b Point b - Array of 2 numebrs.
+     * @param c Point c - Array of 2 numebrs.
      * @returns [centre, radiusSquared], describing the centre's x & y, and the radius
      * squared of the circumcircle. 
      */
     function calculateCircumCircle(a: number[], b: number[], 
                                    c: number[]): [number[], number] {
-        let centre: number[] = [];
+        let tempCentre: number[] = [];
         let radiusSquared: number;
         let abMidpoint: number[] = [Math.min(a[0], b[0])+(Math.abs(a[0]-b[0])/2), 
                                     Math.min(a[1], b[1])+(Math.abs(a[1]-b[1])/2)];
-        console.log("MIDPOINT: " + abMidpoint);
         let bcMidpoint: number[] = [Math.min(b[0], c[0])+(Math.abs(b[0]-c[0])/2), 
                                     Math.min(b[1], c[1])+(Math.abs(b[1]-c[1])/2)];
-        console.log("MIDPOINT: " + bcMidpoint);
-        let abGradient: number = 0;
-        let bcGradient: number = 0;
-
-        abGradient = (b[1]-a[1])/(b[0]-a[0]);
-        bcGradient = (c[1]-b[1])/(c[0]-b[0]);
-        console.log("AB GRADIENT: " + abGradient);
-
-        let abNormal: number;
-        let bcNormal: number;
-        abNormal = -1/abGradient;
-        bcNormal = -1/bcGradient;
-
-        let abYIntersect: number = abMidpoint[1]-abNormal*abMidpoint[0];
-        let bcYIntersect: number = bcMidpoint[1]-bcNormal*bcMidpoint[0];
-
-        centre.push(Math.round((abYIntersect-bcYIntersect)/(bcGradient-abGradient)));
-        centre.push(Math.round((centre[0]*abNormal + abYIntersect)));
-
-        radiusSquared = (centre[0]-a[0])*(centre[0]-a[0]) + 
-                        (centre[1]-a[1])*(centre[1]-a[1]);
-        return [centre, Math.floor(Math.sqrt(radiusSquared))];
+        let abGradient: number = (b[1]-a[1])/(b[0]-a[0]);
+        let bcGradient: number = (c[1]-b[1])/(c[0]-b[0]);
+        let abNormal: number = -1/abGradient;
+        let bcNormal: number = -1/bcGradient;
+        let abYIntersept: number = abMidpoint[1]-abNormal*abMidpoint[0];
+        let bcYIntersept: number = bcMidpoint[1]-bcNormal*bcMidpoint[0];
+        tempCentre.push(Math.round((bcYIntersept-abYIntersept)/(abNormal-bcNormal)));
+        tempCentre.push(Math.round((tempCentre[0]*abNormal + abYIntersept)));
+        radiusSquared = (tempCentre[0]-a[0])*(tempCentre[0]-a[0]) + 
+                        (tempCentre[1]-a[1])*(tempCentre[1]-a[1]);
+        return [tempCentre, Math.floor(Math.sqrt(radiusSquared))];
     }
 
     /**
-     * 
-     * @param points 
+     * Calculates the circumcircles inscribed on points x_i and x_j with the 
+     * rest of the points, keeps track of the smallest radius and its respective
+     * index in the points array. Returning the index corresponding to x_k.
+     * @param points Array of points.
+     * @returns Index of k.
      */
-    function getK(points: number[][]) {
+    function getCAndK(points: number[][]): [number, number[], number] {
         let i = points.shift() as number[];
         let j = points.shift() as number[];
-
-        let centres: number[][] = [];
-        let radSquares: number[] = [];
+        let smallestRadius: number = 0;
+        let smallestCentre: number[] = [0, 0];
+        let k = -1;
         for(let idx = 0; idx < points.length; idx++){
-            console.log(idx + " " + points[idx].toString());
-            let [centre, radSqaured] = calculateCircumCircle(i, j, points[idx]);
-            centres.push(centre);
-            radSquares.push(radSqaured);
-            console.log(radSqaured + " " + centre.toString());
+            let [tempCentre, radius] = calculateCircumCircle(i, j, points[idx]);
+            if(smallestRadius == 0 || radius < smallestRadius){
+                smallestRadius = radius;
+                smallestCentre = tempCentre
+                k = idx;
+            }
         }
         points.unshift(j);
         points.unshift(i);
+        return [k + 2, smallestCentre, smallestRadius];
+    }
+
+    /**
+     * Comparing function, compares the squared distance between some point a
+     * and the centre of root circumcircle, with another point, b's, squared 
+     * distance to centre of root circumcircle.
+     * Returns as per the Array.prototype.sort documentation specifies.
+     * @param a number[] First point to be compared.
+     * @param b number[] Second point to be compared
+     * @returns -1 if a is closer, 1 if b is closer, 0 if they're the same.
+     */
+    function comparePointsToC(a: number[], b: number[]) {
+        if(squaredDistance(a, centre) < squaredDistance(b, centre)){
+            return -1;
+        }else if(squaredDistance(a, centre) > squaredDistance(b, centre)){
+            return 1;
+        }
+        return 0;
+    }
+
+    /**
+     * Sorts points, excluding x_0, x_j, and x_k, into a new array "s",
+     * comparing each points to the circumcircle centre.
+     * @param points Points array to be compared.
+     */
+    function sortPointsToC(points: number[][]) {
+        let s = points.slice();
+        s.splice(points.indexOf(k), 1);
+        s.shift();
+        s.shift();
+        s.sort(comparePointsToC);
+        return s;
     }
 
     /**  
@@ -147,10 +177,17 @@ function GeoTriangle() {
     const setup = (p5: any, canvasParentRef: any) => {
         var canvas = p5.createCanvas(400, 200);
         canvas.parent(canvasParentRef);
-        generatePoints(canvas.width, canvas.height, 5);
-        sortPoints(points);
+        generatePoints(canvas.width, canvas.height, 6);
+        sortPointsToFirst(points);
         //x_i and x_j are the first two points in points array.
-        getK(points);
+        let [kIdx, c, radius] = getCAndK(points);
+        k = points[kIdx];
+        centre = c;
+        cRadius = radius;
+        hull.push(firstPoint);
+        hull.push(points[1]);
+        hull.push(k);
+        let s: number[][] = sortPointsToC(points);
 
     }
 
@@ -159,8 +196,18 @@ function GeoTriangle() {
      */
     const draw = (p5: any) => {
         p5.background(200);
+        p5.stroke(255,255,255);
+        p5.circle(centre[0],centre[1],[cRadius*2])
+        p5.stroke(0,0,0);
+        p5.strokeWeight(1);
         points.forEach(item => p5.line(firstPoint[0], firstPoint[1], item[0], item[1]));
-
+        p5.stroke(255,255,0)
+        p5.line(firstPoint[0], firstPoint[1], points[1][0], points[1][1]);
+        p5.stroke(255,0,0);
+        p5.line(firstPoint[0], firstPoint[1], k[0], k[1]); 
+        p5.stroke(0,0,255);
+        p5.line(points[1][0], points[1][1], k[0], k[1]);
+        
     }
 
     return (
