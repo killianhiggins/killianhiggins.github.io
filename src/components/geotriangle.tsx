@@ -6,7 +6,32 @@ function GeoTriangle() {
     let k: number[];
     let centre: number[];
     let cRadius: number;
-    let hull: number[][] = [];
+    let hull: Triangle[] = [];
+    let perimeter: Triangle[] = [];
+    let s: number[][];
+
+    class Triangle {
+        point1: number[];
+        point2: number[];
+        point3: number[];
+
+        constructor(point1: number[], point2: number[], point3: number[]){
+            this.point1 = point1;
+            this.point2 = point2;
+            this.point3 = point3;
+        }
+
+        public toString = () : string => {
+            return("Triangle:\n" + "  point1: " + this.point1.toString() + "\n  point2: " 
+                 + this.point2.toString() + "\n  point3: " + this.point3.toString());
+        }
+
+        public draw(p5: any) {
+            p5.line(this.point1[0], this.point1[1], this.point2[0], this.point2[1]);
+            p5.line(this.point2[0], this.point2[1], this.point3[0], this.point3[1]);
+            p5.line(this.point1[0], this.point1[1], this.point3[0], this.point3[1]);
+        }
+    }
 
     /**  
      * @returns A random integer between 0 and "max" argument.
@@ -39,7 +64,6 @@ function GeoTriangle() {
             }
             points.push([x, y]);
         }
-        console.log(points);
         return points;
     }
 
@@ -181,14 +205,16 @@ function GeoTriangle() {
         sortPointsToFirst(points);
         //x_i and x_j are the first two points in points array.
         let [kIdx, c, radius] = getCAndK(points);
-        k = points[kIdx];
+        k = points[kIdx].slice();
         centre = c;
         cRadius = radius;
-        hull.push(firstPoint);
-        hull.push(points[1]);
-        hull.push(k);
-        let s: number[][] = sortPointsToC(points);
-
+        hull.push(new Triangle(firstPoint, points[1], k));
+        s = sortPointsToC(points);
+        perimeter = hull.slice();
+        console.log(perimeter.toString());
+        // For each val in S:
+        //   find nearest point in PERIMETER
+        //   
     }
 
     /**  
@@ -198,15 +224,12 @@ function GeoTriangle() {
         p5.background(200);
         p5.stroke(255,255,255);
         p5.circle(centre[0],centre[1],[cRadius*2])
-        p5.stroke(0,0,0);
-        p5.strokeWeight(1);
-        points.forEach(item => p5.line(firstPoint[0], firstPoint[1], item[0], item[1]));
-        p5.stroke(255,255,0)
-        p5.line(firstPoint[0], firstPoint[1], points[1][0], points[1][1]);
-        p5.stroke(255,0,0);
-        p5.line(firstPoint[0], firstPoint[1], k[0], k[1]); 
-        p5.stroke(0,0,255);
-        p5.line(points[1][0], points[1][1], k[0], k[1]);
+        //p5.stroke(0,0,0);
+        //points.forEach(item => p5.line(firstPoint[0], firstPoint[1], item[0], item[1]));
+        p5.stroke(0 ,0 ,0);
+        perimeter.forEach(triangle => {
+            triangle.draw(p5);
+    });
         
     }
 
