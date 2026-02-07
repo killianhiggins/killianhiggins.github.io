@@ -1,0 +1,41 @@
+{
+	"name": "killianhiggins.github.io",
+	"private": true,
+	"version": "0.0.1",
+	"type": "module",
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"prepare": "svelte-kit sync || echo ''",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"db:push": "drizzle-kit push",
+		"db:generate": "drizzle-kit generate",
+		"db:migrate": "drizzle-kit migrate",
+		"db:studio": "drizzle-kit studio"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-node": "^5.5.2",
+		"@sveltejs/kit": "^2.50.2",
+		"@sveltejs/vite-plugin-svelte": "^6.2.4",
+		"@tailwindcss/forms": "^0.5.11",
+		"@tailwindcss/typography": "^0.5.19",
+		"@tailwindcss/vite": "^4.1.18",
+		"@types/node": "^22",
+		"drizzle-kit": "^0.31.8",
+		"drizzle-orm": "^0.45.1",
+		"flowbite": "^4.0.1",
+		"flowbite-svelte": "^1.31.0",
+		"p5": "^2.2.0",
+		"svelte": "^5.49.2",
+		"svelte-check": "^4.3.6",
+		"tailwindcss": "^4.1.18",
+		"typescript": "^5.9.3",
+		"vite": "^7.3.1"
+	},
+	"dependencies": {
+		"p5-svelte": "^3.1.2",
+		"postgres": "^3.4.8"
+	}
+}
