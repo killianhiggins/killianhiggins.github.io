@@ -263,7 +263,7 @@
 
         p5.draw = () => {
             const waterColour = p5.color(50, 100, 255)
-            const waterfallColour =p5.color(80, 150, 255)
+            const waterfallColour = p5.color(80, 150, 255)
             const tankColour = p5.color(50, 50, 50)
             const glassColour = p5.color(100, 100, 100)
             for (let i = 0; i < cols; i++){

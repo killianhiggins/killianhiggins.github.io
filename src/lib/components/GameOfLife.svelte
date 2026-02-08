@@ -8,6 +8,9 @@
         }
 
         p5Instance.draw = () => {
+			const background = p5.color(50, 50, 50)
+			p5.stroke(background)
+			p5.fill(background)
         }
 
         p5Instance.mouseDragged = () => {
